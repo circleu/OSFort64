@@ -1,8 +1,12 @@
 .vscode/
 gnu-efi/
 
-build/*.*
-tmp/*.*
+tmp/*
+result/*
+disk/*
+!tmp/.dummy
+!result/.dummy
+!disk/.dummy
 
 disk.img
 hexdumpout
