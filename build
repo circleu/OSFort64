@@ -1,0 +1,9 @@
+#!/bin/sh
+
+bootx64dir="./disk/EFI/BOOT"
+
+make clean
+make
+
+mkdir -p "$bootx64dir"
+cp result/BOOTX64.EFI "$bootx64dir"

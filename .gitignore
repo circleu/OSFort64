@@ -1,0 +1,8 @@
+.vscode/
+gnu-efi/
+
+build/*.*
+tmp/*.*
+
+disk.img
+hexdumpout

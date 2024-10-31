@@ -1,0 +1,8 @@
+#!/bin/sh
+
+dd if=/dev/zero of=disk.img bs=512 count=4194304
+parted disk.img -s -a minimal mklabel gpt
+parted disk.img -s -a minimal mkpart EFI FAT32 2048s 1048575s # 511 MiB
+parted disk.img -s -a minimal toggle 1 boot
+
+parted disk.img -s -a minimal mkpart primary FAT32 1048576s 2097151s # 512 MiB

@@ -1,0 +1,3 @@
+#!/bin/sh
+
+hexdump -C disk.img > hexdumpout
