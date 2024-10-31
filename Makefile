@@ -14,4 +14,4 @@ tmp/boot.o : src/boot.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	rm tmp/*.* result/*.*
+	rm tmp/*.o tmp/*.so result/*.EFI
