@@ -4,9 +4,10 @@ gnu-efi/
 tmp/*
 result/*
 disk/*
-!tmp/.dummy
-!result/.dummy
-!disk/.dummy
+
+!*/.dummy
+!disk/1
+!disk/2
 
 disk.img
 hexdumpout

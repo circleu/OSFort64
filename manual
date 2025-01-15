@@ -1,0 +1,6 @@
+run 'mkdisk' to make virtual disk.
+run 'mntdisk' to mount virtual disk to 'disk' directory.
+run 'build' to build your efi application and copy it to virtual disk.
+run 'run' to start emulation with your application.
+
+all the steps should be done with sudo.

@@ -1,9 +1,19 @@
 #!/bin/sh
 
-bootx64dir="./disk/EFI/BOOT"
+BOOTX64_EFI="result/BOOTX64.EFI"
+
+KERNEL="result/kernel"
+
+part1="./disk/1"
+part2="./disk/2"
+
 
 make clean
-make
+make bootloader
+make kernel
 
-mkdir -p "$bootx64dir"
-cp result/BOOTX64.EFI "$bootx64dir"
+mkdir -p "$part1/EFI/BOOT"
+cp $BOOTX64_EFI "$part1/EFI/BOOT"
+
+mkdir -p "$part2/sys/kernel"
+cp $KERNEL "$part2/sys/kernel"

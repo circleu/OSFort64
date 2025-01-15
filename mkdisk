@@ -1,8 +1,12 @@
 #!/bin/sh
 
 dd if=/dev/zero of=disk.img bs=512 count=4194304
-parted disk.img -s -a minimal mklabel gpt
-parted disk.img -s -a minimal mkpart EFI FAT32 2048s 1048575s # 511 MiB
-parted disk.img -s -a minimal toggle 1 boot
+sgdisk disk.img -o
+sgdisk disk.img -n 1:2048:+1046528 -t 1:C12A7328-F81F-11D2-BA4B-00A0C93EC93B
+sgdisk disk.img -n 2:1048576:+2097152 -t 2:EBD0A0A2-B9E5-4433-87C0-68B6B72699C7
 
-parted disk.img -s -a minimal mkpart primary FAT32 1048576s 2097151s # 512 MiB
+loopback=`losetup --partscan --show --find disk.img`
+mkfs.fat -F 32 $loopback"p1"
+mkfs.fat -F 32 $loopback"p2"
+losetup -d $loopback
+

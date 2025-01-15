@@ -1,0 +1,16 @@
+CC = gcc
+SOURCE := $(filter-out src/boot.c,$(wildcard src/*.c))
+OBJECT := $(subst src/,tmp/,$(subst .c,.o,$(SOURCE)))
+TARGET = result/kernel
+
+
+all: $(TARGET)
+
+result/kernel : $(OBJECT) tmp/load_gdt.o
+	ld -Tkernel.ld -static $^ -o $@
+
+tmp/%.o : src/%.c
+	$(CC) -ffreestanding -nostdlib -m64 -masm=att -mno-sse -mno-mmx -mno-80387 -c $< -o $@
+
+tmp/load_gdt.o : src/load_gdt.asm
+	as -c $^ -o $@

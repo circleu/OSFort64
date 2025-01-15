@@ -1,0 +1,4 @@
+Use snake_case.
+Use abbreviation if a word has more than 6 letters.
+
+Use SCREAMING_SNAKE_CASE to constants and structs.

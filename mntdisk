@@ -1,19 +1,20 @@
 #!/bin/sh
 
-unused=`losetup -f`
 escape=1
 
-losetup --offset 1048576 --sizelimit 535822336 $unused disk.img
-mkdosfs -F 32 $unused
-mount $unused disk/
+
+loopback=`losetup --partscan --show --find disk.img`
+mount $loopback"p1" disk/1/
+mount $loopback"p2" disk/2/
 
 while [ $escape = 1 ]
 do
-  read -p "Type 'u' to Unmount: " keypress
+  read -p "Type 'u' to unmount: " keypress
   if [ $keypress = "u" ]
   then
-    umount disk/
-    losetup -d $unused
+    umount disk/1/
+    umount disk/2/
+    losetup -d $loopback
     escape=0
   fi
 done
