@@ -6,8 +6,13 @@ result/*
 disk/*
 
 !*/.dummy
-!disk/1
-!disk/2
+disk/1
+disk/2
+!disk/1/.dummy
+!disk/2/.dummy
 
 disk.img
 hexdumpout
+manual
+codingconv
+cp2disk
