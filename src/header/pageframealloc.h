@@ -3,12 +3,12 @@
 
 #include <stdint.h>
 #include "def.h"
-#include "efimem.h"
+#include "bootinfo.h"
 #include "mem.h"
 #include "bitmap.h"
 
 
-void read_efi_mem_map(EFI_MEMORY_DESCRIPTOR* mem_map, size_t mem_map_size, size_t desc_size, BITMAP* page_bitmap);
+void read_efi_mem_map(_EFI_MEMORY_DESCRIPTOR* mem_map, size_t mem_map_size, size_t desc_size, BITMAP* page_bitmap);
 void init_bitmap(BITMAP* bitmap, size_t bitmap_size, void* bitmap_addr);
 void* req_page(BITMAP* page_bitmap);
 void free_page(BITMAP* page_bitmap, void* addr);

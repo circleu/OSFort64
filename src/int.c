@@ -32,6 +32,18 @@ void set_idt() {
     idt.keyboard.offs1 = (uint16_t)((isr >> 16) & 0xffff);
     idt.keyboard.offs2 = (uint32_t)((isr >> 32) & 0xffffffff);
 
+    isr = (uint64_t)spurious_irq;
+    idt.spurious_irq.offs0 = (uint16_t)(isr & 0xffff);
+    idt.spurious_irq.seg = 0x0008;
+    idt.spurious_irq.ist = 0b000;
+    idt.spurious_irq.zero0 = 0;
+    idt.spurious_irq.type = 0b1110;
+    idt.spurious_irq.zero1 = 0;
+    idt.spurious_irq.dpl = 0b00;
+    idt.spurious_irq.p = 1;
+    idt.spurious_irq.offs1 = (uint16_t)((isr >> 16) & 0xffff);
+    idt.spurious_irq.offs2 = (uint32_t)((isr >> 32) & 0xffffffff);
+
     isr = (uint64_t)pf;
     idt.pf.offs0 = (uint16_t)(isr & 0xffff);
     idt.pf.seg = 0x0008;
@@ -73,6 +85,7 @@ void set_idt() {
 
     *(GATE_DESCRIPTOR*)(idtr.offs + 0x20 * sizeof(GATE_DESCRIPTOR)) = idt.timer;
     *(GATE_DESCRIPTOR*)(idtr.offs + 0x21 * sizeof(GATE_DESCRIPTOR)) = idt.keyboard;
+    *(GATE_DESCRIPTOR*)(idtr.offs + 0x27 * sizeof(GATE_DESCRIPTOR)) = idt.spurious_irq;
     *(GATE_DESCRIPTOR*)(idtr.offs + 0x0e * sizeof(GATE_DESCRIPTOR)) = idt.pf;
     *(GATE_DESCRIPTOR*)(idtr.offs + 0x08 * sizeof(GATE_DESCRIPTOR)) = idt.df;
     *(GATE_DESCRIPTOR*)(idtr.offs + 0x0d * sizeof(GATE_DESCRIPTOR)) = idt.gp;
@@ -99,14 +112,13 @@ void remap_pic() {
     outb(0x01, 0xa1);
     io_wait();
 
-    outb(0b00000001, 0x21);
+    outb(0x00, 0x21);
     io_wait();
-    outb(0b00000000, 0x28);
+    outb(0x00, 0x28);
     io_wait();
 
     asm volatile ("sti");
 }
-
 static __attribute__((interrupt)) void timer(struct interrupt_frame*) {
     outb(0x20, 0x20);
     return;
@@ -115,6 +127,10 @@ static __attribute__((interrupt)) void keyboard(struct interrupt_frame*) {
     uint8_t key = inb(0x60);
     print("pressed\r\n");
     
+    outb(0x20, 0x20);
+    return;
+}
+static __attribute__((interrupt)) void spurious_irq(struct interrupt_frame*) {
     outb(0x20, 0x20);
     return;
 }

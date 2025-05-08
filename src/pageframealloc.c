@@ -7,7 +7,7 @@ static size_t used_mem;
 static bool init = FALSE;
 BITMAP global_allocator = {0, };
 
-void read_efi_mem_map(EFI_MEMORY_DESCRIPTOR* mem_map, size_t mem_map_size, size_t desc_size, BITMAP* page_bitmap) {
+void read_efi_mem_map(_EFI_MEMORY_DESCRIPTOR* mem_map, size_t mem_map_size, size_t desc_size, BITMAP* page_bitmap) {
     if (init) return;
     else init = TRUE;
 
@@ -17,7 +17,7 @@ void read_efi_mem_map(EFI_MEMORY_DESCRIPTOR* mem_map, size_t mem_map_size, size_
     size_t largest_free_mem_seg_size = 0;
 
     for (size_t i = 0; i < mem_map_entries; i++) {
-        EFI_MEMORY_DESCRIPTOR* desc = (EFI_MEMORY_DESCRIPTOR*)((uint64_t)mem_map + (i * desc_size));
+        _EFI_MEMORY_DESCRIPTOR* desc = (_EFI_MEMORY_DESCRIPTOR*)((uint64_t)mem_map + (i * desc_size));
         if (desc->type == 7) {
             if (desc->num_pages * 4096 > largest_free_mem_seg_size) {
                 largest_free_mem_seg = (void*)desc->phys_addr;
@@ -34,12 +34,11 @@ void read_efi_mem_map(EFI_MEMORY_DESCRIPTOR* mem_map, size_t mem_map_size, size_
     lock_pages(page_bitmap, (void*)page_bitmap->buffer, page_bitmap->size / 4096 + 1);
     
     for (size_t i = 0; i < mem_map_entries; i++) {
-        EFI_MEMORY_DESCRIPTOR* desc = (EFI_MEMORY_DESCRIPTOR*)((uint64_t)mem_map + (i * desc_size));
+        _EFI_MEMORY_DESCRIPTOR* desc = (_EFI_MEMORY_DESCRIPTOR*)((uint64_t)mem_map + (i * desc_size));
         if (desc->type != 7) {
             reserve_pages(page_bitmap, (void*)desc->phys_addr, desc->num_pages);
         }
     }
-
 }
 void init_bitmap(BITMAP* bitmap, size_t bitmap_size, void* bitmap_addr) {
     bitmap->size = bitmap_size;

@@ -54,3 +54,10 @@ void clear_screen(uint32_t color) {
         }
     }
 }
+void clear_line(uint32_t color) {
+    for (uint32_t i = 0; i < graphics.width; i++) {
+        for (uint8_t j = 0; j < FONT_HEIGHT; j++) {
+            *(uint32_t*)(graphics.framebuffer_base + (graphics.pixels_per_scanline * j * 4) + (i * 4)) = color;
+        }
+    }
+}

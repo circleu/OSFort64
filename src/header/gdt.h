@@ -27,7 +27,6 @@ typedef struct {
 }__attribute__((packed)) __attribute__((aligned(0x1000))) GDT;
 
 __attribute__((sysv_abi)) void load_gdt(GDTR* gdtr);
-void reload_seg() asm ("reload_seg");
 
 extern GDT gdt;
 extern GDTR gdtr;

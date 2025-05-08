@@ -12,3 +12,9 @@ uint8_t inb(uint16_t origin) {
 void io_wait() {
     asm volatile ("movb $0x00, %al; movw $0x0080, %dx; outb %al, %dx");
 }
+void rdmsr(uint32_t msr, uint32_t* l, uint32_t* h) {
+    asm volatile ("rdmsr":"=a"(*l), "=d"(*h):"c"(msr));
+}
+void wrmsr(uint32_t msr, uint32_t l, uint32_t h) {
+    asm volatile ("wrmsr;"::"a"(l), "d"(h), "c"(msr));
+}

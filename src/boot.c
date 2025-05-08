@@ -1,28 +1,34 @@
 #include <efi.h>
 #include <efilib.h>
 #include <elf.h>
+#include "header/bootinfo.h"
 
 #define PART_NUM 1
 
 
 typedef struct {
-    EFI_PHYSICAL_ADDRESS framebuffer_base;
-    UINTN framebuffer_size;
-    UINT32 width;
-    UINT32 height;
-    UINT32 pixels_per_scanline;
-} GRAPHICS;
-typedef struct {
-    EFI_MEMORY_DESCRIPTOR* map;
-    UINTN size;
-    UINTN desc_size;
-} MEMORY_MAP;
-typedef struct {
-    GRAPHICS graphics;
-    MEMORY_MAP mem_map;
-} BOOT_INFO;
+    uint8_t sign[8];
+    uint8_t checksum;
+    uint8_t oemid[6];
+    uint8_t rev;
+    uint32_t rsdt_addr;
 
-
+    uint32_t len;
+    uint64_t xsdt_addr;
+    uint8_t ext_checksum;
+    uint8_t reserved[3];
+}__attribute__((packed)) XSDP;
+typedef struct {
+    uint8_t sign[4];
+    uint32_t len;
+    uint8_t rev;
+    uint8_t checksum;
+    uint8_t oem_id[6];
+    uint8_t oem_table_id[8];
+    uint32_t oem_rev;
+    uint32_t creator_id;
+    uint32_t creator_rev;
+} XSDT;
 VOID error_checker(EFI_GRAPHICS_OUTPUT_PROTOCOL* gop, EFI_STATUS status) { // if an error occurs, a big square appears on the screen
     static int k = 0;
 
@@ -43,6 +49,15 @@ BOOLEAN memcmp(VOID* _mem1, VOID* _mem2, UINTN size) {
     }
 
     return TRUE;
+}
+BOOLEAN guidcmp(EFI_GUID g1, EFI_GUID g2) {
+    if (
+        g1.Data1 == g2.Data1 &&
+        g1.Data2 == g2.Data2 &&
+        g1.Data3 == g2.Data3 &&
+        memcmp((VOID*)g1.Data4, (VOID*)g2.Data4, 8)
+    ) return TRUE;
+    return FALSE;
 }
 EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable) {
     InitializeLib(ImageHandle, SystemTable);
@@ -156,16 +171,50 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable
 
     // Get memory map
     status = EFI_SUCCESS;
-    EFI_MEMORY_DESCRIPTOR* mem_map = NULL;
+    _EFI_MEMORY_DESCRIPTOR* mem_map = NULL;
     UINTN mem_map_size, mem_map_key, desc_size;
     UINT32 desc_ver;
     {
         uefi_call_wrapper(BS->GetMemoryMap, 5, &mem_map_size, mem_map, &mem_map_key, &desc_size, &desc_ver);
         uefi_call_wrapper(BS->AllocatePool, 3, EfiLoaderData, mem_map_size, (VOID**)&mem_map);
-        mem_map_size += sizeof(EFI_MEMORY_DESCRIPTOR) + sizeof(VOID*);
+        mem_map_size += sizeof(_EFI_MEMORY_DESCRIPTOR) + sizeof(VOID*);
         status = uefi_call_wrapper(BS->GetMemoryMap, 5, &mem_map_size, mem_map, &mem_map_key, &desc_size, &desc_ver);
     }
     error_checker(gop, status);
+
+    // Get XSDT
+    XSDP* xsdp;
+    XSDT* xsdt;
+    {
+        EFI_GUID stct;
+        EFI_GUID acpi20 = ACPI_20_TABLE_GUID;
+        for (UINT32 i = 0; i < ST->NumberOfTableEntries; i++) {
+            stct = ST->ConfigurationTable[i].VendorGuid;
+            if (guidcmp(acpi20, stct)) xsdp = (XSDP*)(ST->ConfigurationTable[i].VendorTable);
+        }
+        if (memcmp((VOID*)xsdp->sign, (VOID*)"RSD PTR ", 8) != TRUE)
+            status = !EFI_SUCCESS;
+        UINT8 ret;
+        for (UINT8 i = 0; i < 20; i++)
+            ret += *(UINT8*)(xsdp + i);
+        if (ret != 0)
+            status = !EFI_SUCCESS;
+        for (UINT8 i = 0; i < 16; i++)
+            ret += *(UINT8*)(xsdp + i);
+        if (ret != 0)
+            status = !EFI_SUCCESS;
+        
+        xsdt = (XSDT*)xsdp->xsdt_addr;
+        if (memcmp((VOID*)xsdt->sign, (VOID*)"XSDT", 4) != TRUE)
+            status = !EFI_SUCCESS;
+        for (UINT64 i = 0; i < xsdt->len; i++) {
+            ret += *(UINT8*)(xsdt + i);
+        }
+        if (ret != 0)
+            status = !EFI_SUCCESS;
+    }
+    error_checker(gop, status);
+    
     
     // Start kernel
     BOOT_INFO boot_info = {
@@ -180,7 +229,8 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable
             (VOID*)mem_map,
             mem_map_size,
             desc_size
-        }
+        },
+        (UINT64)xsdt
     };
     void (*kernel_start)(void*) = ((__attribute__((sysv_abi)) void (*)(void*)) kernel_entry);
     
