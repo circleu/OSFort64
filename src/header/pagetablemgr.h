@@ -18,6 +18,7 @@ typedef struct {
 } PAGE_MAP_INDEXER;
 
 void map_mem(PAGE_TABLE_MANAGER* page_table_mgr, void* vir_addr, void* phys_addr);
+void map_mem_usr(PAGE_TABLE_MANAGER* page_table_mgr, void* vir_addr, void* phys_addr);
 void init_page_map_indexer(PAGE_MAP_INDEXER* page_map_indexer, uint64_t vir_addr);
 
 #endif

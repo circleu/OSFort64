@@ -26,8 +26,7 @@ typedef struct {
     SEGMENT_DESCRIPTOR user_data;   // 0x20
 }__attribute__((packed)) __attribute__((aligned(0x1000))) GDT;
 
-__attribute__((sysv_abi)) void load_gdt(GDTR* gdtr);
-
+extern __attribute__((sysv_abi)) void load_gdt(GDTR* gdtr);
 extern GDT gdt;
 extern GDTR gdtr;
 

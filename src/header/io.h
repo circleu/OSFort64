@@ -6,7 +6,7 @@
 void outb(uint8_t origin, uint16_t dest);
 uint8_t inb(uint16_t origin);
 void io_wait();
-void rdmsr(uint32_t msr, uint32_t* l, uint32_t* h);
-void wrmsr(uint32_t msr, uint32_t l, uint32_t h);
+uint64_t rdmsr(uint32_t msr);
+void wrmsr(uint32_t msr, uint64_t value);
 
 #endif

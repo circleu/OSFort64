@@ -14,6 +14,8 @@
 #include "int.h"
 #include "bootinfo.h"
 #include "acpi.h"
+#include "proc.h"
+#include "syscall.h"
 
 
 extern uint64_t _kernel_start;
