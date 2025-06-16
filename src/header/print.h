@@ -2,13 +2,16 @@
 #define __PRINT_H
 
 #include <stdint.h>
-#include "font.h"
+#include <stdarg.h>
+#include "osfrt_font.h"
 #include "def.h"
 #include "bootinfo.h"
 #include "func.h"
+#include "bitmap.h"
 
-
-void print(const char* str);
+void printc(const char chr);
+void prints(const char* str);
+void printf(const char* str, ...);
 void set_color(uint32_t _color);
 void set_pos(uint32_t _x, uint32_t _y);
 void push_pos(uint32_t _x, uint32_t _y);

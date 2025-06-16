@@ -1,7 +1,9 @@
 CC = gcc
-SOURCE := $(filter-out src/boot.c,$(wildcard src/*.c))
-OBJECT := $(subst src/,tmp/,$(subst .c,.o,$(SOURCE)))
 TARGET = result/kernel
+CFLAGS = -ffreestanding -nostdlib -m64 -masm=att -mno-sse -mno-mmx -mno-80387
+SOURCE := $(filter-out src/boot.c,$(wildcard src/*.c))
+OBJECT := $(subst src/,tmp/,$(patsubst %.c,%.o,$(SOURCE)))
+
 
 
 all: $(TARGET)
@@ -10,7 +12,7 @@ result/kernel : $(OBJECT) tmp/load_gdt.o tmp/jmp_usr.o
 	ld -Tkernel.ld -static $^ -o $@
 
 tmp/%.o : src/%.c
-	$(CC) -ffreestanding -nostdlib -m64 -masm=att -mno-sse -mno-mmx -mno-80387 -c $< -o $@
+	$(CC) $(CFLAGS) -c $< -o $@
 
 
 tmp/jmp_usr.o : src/jmp_usr.asm

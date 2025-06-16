@@ -28,6 +28,8 @@
 #define APIC_REGISTER_TIMER_ICR 0x380
 #define APIC_REGISTER_TIMER_DIV 0x3e0
 
+#define MAX_LEN = 0xffff
+
 
 typedef struct {
     uint8_t sign[4];
@@ -138,8 +140,23 @@ typedef struct {
     uint32_t flags;
     APIC_STRUCTURE apic_struct;
 }__attribute__((packed)) MADT;
+typedef struct {
+    SDT_HEADER header;
+    uint32_t firmware_ctrl;
+    uint32_t dsdt;
+    uint8_t reserved0;
+
+    // there's more, but I want dsdt only
+}__attribute__((packed)) FADT;
+typedef struct {
+    SDT_HEADER header;
+}__attribute__((packed)) DSDT;
 
 MADT* acpi_find_madt(XSDT* xsdt);
+FADT* acpi_find_fadt(XSDT* xsdt);
+static uint8_t* disasm_aml(uint8_t* code, size_t code_size);
+void putcode(uint8_t* code, const char* str, size_t* ptr, size_t pos);
+uint8_t ops2char(uint8_t ops);
 
 
 #endif

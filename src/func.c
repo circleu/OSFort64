@@ -49,6 +49,20 @@ char* hex(uint64_t num) {
 
     return (char*)temp;
 }
+char* hexbyte(uint8_t num) {
+    static char temp[3];
+    char hex[17] = "0123456789ABCDEF";
+
+    for (int i = 0; i < 3; i++) temp[i] = 0;
+
+    for (int i = 0; i < 2; i++) {
+        uint8_t byte; byte = (num & ((uint64_t)0xf << i * 4)) >> i * 4;
+
+        temp[1 - i] = hex[byte];
+    }
+
+    return (char*)temp;
+}
 bool strncmp(uint8_t* x, uint8_t* y, size_t n) {
     for (size_t i = 0; i < n; i++)
         if (x[i] != y[i]) return FALSE;

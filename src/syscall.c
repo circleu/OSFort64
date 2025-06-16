@@ -29,7 +29,7 @@ void syscall_handler() {
             break;
         }
         case 12: {
-            print("\r\n\r\n yay \r\n\r\n");
+            prints("\r\n\r\n yay \r\n\r\n");
             while(1);
             break;
         }

@@ -3,9 +3,17 @@
 
 #include <stdint.h>
 
-#define TRUE 1
-#define FALSE 0
-#define NULL (void*)0
+#ifndef TRUE
+ #define TRUE 1
+#endif
+
+#ifndef FALSE
+ #define FALSE 0
+#endif
+
+#ifndef NULL 
+ #define NULL (void*)0
+#endif
 
 typedef uint8_t bool;
 typedef uint64_t size_t;

@@ -1,5 +1,5 @@
 .vscode/
-gnu-efi/
+saveweb2zip-com-uefi-org/
 
 tmp/*
 result/*
@@ -16,3 +16,4 @@ hexdumpout
 manual
 codingconv
 cp2disk
+myops.png

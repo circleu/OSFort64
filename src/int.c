@@ -125,7 +125,7 @@ static __attribute__((interrupt)) void timer(struct interrupt_frame*) {
 }
 static __attribute__((interrupt)) void keyboard(struct interrupt_frame*) {
     uint8_t key = inb(0x60);
-    print("pressed\r\n");
+    prints("pressed\r\n");
     
     outb(0x20, 0x20);
     return;
@@ -154,10 +154,10 @@ static void panic(uint64_t exception) {
     set_pos(0, 0);
     set_color(0x00ffffff);
     
-    if (exception == (uint64_t)pf) print("Page Fault.\r\n\r\n");
-    else if (exception == (uint64_t)df) print("Double Fault.\r\n\r\n");
-    else if (exception == (uint64_t)gp) print("General Protection Fault.\r\n\r\n");
-    else print("Unexpected Error.\r\n\r\n");
+    if (exception == (uint64_t)pf) prints("Page Fault.\r\n\r\n");
+    else if (exception == (uint64_t)df) prints("Double Fault.\r\n\r\n");
+    else if (exception == (uint64_t)gp) prints("General Protection Fault.\r\n\r\n");
+    else prints("Unexpected Error.\r\n\r\n");
 
     while (1);
 }

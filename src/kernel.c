@@ -40,6 +40,14 @@ extern void _start(void* _boot_info) {
     uint64_t apic_addr = (uint64_t)madt->local_apic_addr;
     map_mem(&page_table_mgr, (void*)apic_addr, (void*)apic_addr);
 
+    FADT* fadt = acpi_find_fadt(xsdt);
+    DSDT* dsdt = fadt->dsdt;
+    uint64_t dsdt_size = dsdt->header.len + 0x1000;
+    lock_pages(&global_allocator, (void*)dsdt, dsdt_size / 0x1000 + 1);
+    for (uint64_t i = (uint64_t)dsdt; i < (uint64_t)dsdt + dsdt_size; i += 0x1000)
+        map_mem(&page_table_mgr, (void*)i, (void*)i);
+
+
     uint64_t usr_space = 0x00400000;
     lock_pages(&global_allocator, (void*)usr_space, 100);
     for (uint64_t i = (uint64_t)usr_space; i < (uint64_t)usr_space + 100; i+= 0x1000)
@@ -116,9 +124,19 @@ extern void _start(void* _boot_info) {
     wrmsr(0xc0000081, (rdmsr(0xc0000081) & 0xffffffff) | ((uint64_t)0x08 << 32) | ((uint64_t)0x18 << 48));
     wrmsr(0xc0000084, rdmsr(0xc0000084) | (uint64_t)(1 << 9));
 
+// Manage devices - parsing DSDT
+    uint64_t def_block_size = dsdt->header.len - sizeof(SDT_HEADER);
+    uint8_t* def_block_ptr = dsdt + sizeof(SDT_HEADER);
     
-    set_pos(0, 0);
-    print("Kernel loaded successfully.\r\n\r\n");
+    for (uint64_t i = 0; i < 2000; i++) {
+        prints(hexbyte(*(def_block_ptr + i)));
+        printc(' ');
+    }
+//
+
+    // prints("Kernel loaded successfully.\r\n\r\n");
+    // prints("Testing printf...\r\n");
+    // printf("What's nine plus ten? %d %s\r\n\r\n", 21, "twenty-one");
 
     while (1);
 

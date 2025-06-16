@@ -1,33 +1,66 @@
 #include "header/print.h"
 
-
 static GRAPHICS graphics;
 static uint32_t color = 0x00aaaaaa;
 static uint32_t x = 0;
 static uint32_t y = 0;
 
-void print(const char* str) {
-    for (size_t c = 0; str[c] != 0; c++) {
-        switch (str[c]) {
-            case '\n': y++; continue;
-            case '\r': x = 0; continue;
-        }
+void printc(const char chr) {
+    switch (chr) {
+        case '\n': y++; goto END;
+        case '\r': x = 0; goto END;
+    }
 
-        uint8_t* ch = char_to_bitmap(str[c]);
-        if (ch == NULL) continue;
+    BITMAP ch;
+    ch.buffer = char_to_bitmap(chr);
+    ch.size = OSFRT_FONT_HEIGHT;
+    if (ch.buffer == NULL) goto END;
 
-        for (uint8_t i = 0; i < FONT_HEIGHT; i++) {
-            for (uint8_t j = 0; j < FONT_WIDTH; j++) {
-                if (*(ch + (i * FONT_WIDTH) + j)) *(uint32_t*)(graphics.framebuffer_base + (graphics.pixels_per_scanline * (y * FONT_HEIGHT + i) * 4) + ((x * FONT_WIDTH + j) * 4)) = color;
-            }
-        }
-
-        x++;
-        if (x > graphics.pixels_per_scanline / FONT_WIDTH) {
-            x -= graphics.pixels_per_scanline / FONT_WIDTH;
-            y++;
+    for (uint8_t i = 0; i < OSFRT_FONT_HEIGHT; i++) {
+        for (uint8_t j = 0; j < OSFRT_FONT_WIDTH; j++) {
+            if (get_bitmap(&ch, i * OSFRT_FONT_WIDTH + (OSFRT_FONT_WIDTH - 1 - j))) *(uint32_t*)(graphics.framebuffer_base + (graphics.pixels_per_scanline * (y * OSFRT_FONT_HEIGHT + i) * 4) + ((x * OSFRT_FONT_WIDTH + j) * 4)) = color;
         }
     }
+
+    x++;
+    if (x >= graphics.pixels_per_scanline / OSFRT_FONT_WIDTH) {
+        x -= graphics.pixels_per_scanline / OSFRT_FONT_WIDTH;
+        y++;
+    }
+    END:
+}
+void prints(const char* str) {
+    for (size_t c = 0; str[c] != 0; c++) printc(str[c]);
+}
+void printf(const char* str, ...) {
+    va_list vars;
+    va_start(vars, str);
+
+    for (size_t c = 0; str[c] != 0; c++) {
+        switch (str[c]) {
+            case '%': {
+                c++;
+                switch (str[c]) {
+                    case 'd': {
+                        prints(itoa(va_arg(vars, uint64_t)));
+                        continue;
+                    }
+                    case 's': {
+                        prints(va_arg(vars, uint8_t*));
+                        continue;
+                    }
+                    default: {
+                        c--;
+                        break;
+                    }
+                }
+                break;
+            }
+        }
+        printc(str[c]);
+    }
+
+    va_end(vars);
 }
 void set_color(uint32_t _color) {
     color = _color;
@@ -56,7 +89,7 @@ void clear_screen(uint32_t color) {
 }
 void clear_line(uint32_t color) {
     for (uint32_t i = 0; i < graphics.width; i++) {
-        for (uint8_t j = 0; j < FONT_HEIGHT; j++) {
+        for (uint8_t j = 0; j < OSFRT_FONT_HEIGHT; j++) {
             *(uint32_t*)(graphics.framebuffer_base + (graphics.pixels_per_scanline * j * 4) + (i * 4)) = color;
         }
     }
