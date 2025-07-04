@@ -17,3 +17,7 @@ manual
 codingconv
 cp2disk
 myops.png
+*.dsl
+codetmp
+idea/
+acpica/

@@ -1,19 +1,23 @@
 CC = gcc
 TARGET = result/kernel
-CFLAGS = -ffreestanding -nostdlib -m64 -masm=att -mno-sse -mno-mmx -mno-80387
+CFLAGS = -ffreestanding -nostdlib -nolibc -fno-stack-protector -m64 -masm=att -mno-sse -mno-mmx -mno-80387 -std=c11 -DACPI_MACHINE_WIDTH=64 -D__OSFRT64__ -DACPI_DISASSEMBLER -DACPI_EXEC_APP -DACPI_DEBUGGER -Isrc/acpi
 SOURCE := $(filter-out src/boot.c,$(wildcard src/*.c))
+ACPISOURCE := $(wildcard src/acpi/*.c)
 OBJECT := $(subst src/,tmp/,$(patsubst %.c,%.o,$(SOURCE)))
+ACPIOBJECT := $(subst src/,tmp/,$(patsubst %.c,%.o,$(ACPISOURCE)))
 
 
 
 all: $(TARGET)
 
-result/kernel : $(OBJECT) tmp/load_gdt.o tmp/jmp_usr.o
+result/kernel : $(OBJECT) $(ACPIOBJECT) tmp/load_gdt.o tmp/jmp_usr.o
 	ld -Tkernel.ld -static $^ -o $@
 
 tmp/%.o : src/%.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
+tmp/acpi/%.o : src/acpi/%.c
+	$(CC) $(CFLAGS) -c $< -o $@
 
 tmp/jmp_usr.o : src/jmp_usr.asm
 	as -c $^ -o $@

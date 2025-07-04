@@ -1,4 +1,4 @@
-# OsForteu64
+# OsFort64
 ### x86_64 Operating System Using GNU-EFI.
 
 Currently in Development.

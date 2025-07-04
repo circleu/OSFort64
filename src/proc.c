@@ -5,7 +5,7 @@ uint64_t* proc_table_base;
 uint64_t proc_num_counter;
 
 void proc_cycle() {
-    asm volatile (
+    __asm__ volatile (
         "movq $12, %rax;"
         "syscall;"
     );

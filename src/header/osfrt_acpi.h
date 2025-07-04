@@ -1,10 +1,10 @@
-#ifndef _ACPI_H
-#define _ACPI_H
+#ifndef __OSFRT_ACPI_H
+#define __OSFRT_ACPI_H
 
 #include <stdint.h>
 #include "def.h"
 #include "func.h"
-#include "print.h"
+#include "osfrt_print.h"
 #include "pageframealloc.h"
 #include "pagetablemgr.h"
 
@@ -154,9 +154,6 @@ typedef struct {
 
 MADT* acpi_find_madt(XSDT* xsdt);
 FADT* acpi_find_fadt(XSDT* xsdt);
-static uint8_t* disasm_aml(uint8_t* code, size_t code_size);
-void putcode(uint8_t* code, const char* str, size_t* ptr, size_t pos);
-uint8_t ops2char(uint8_t ops);
 
 
 #endif

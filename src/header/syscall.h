@@ -3,7 +3,7 @@
 
 
 #include <stdint.h>
-#include "print.h"
+#include "osfrt_print.h"
 
 void syscall_handler();
 extern __attribute__((sysv_abi)) void jmp_usr(uint64_t addr);

@@ -4,7 +4,7 @@
 void syscall_handler() {
     //       rax  rdi   rsi   rdx   r10   r8    r9
     uint64_t num, arg1, arg2, arg3, arg4, arg5, arg6;
-    asm volatile (
+    __asm__ volatile (
         "movq %%rax, %0;"
         "movq %%rdi, %1;"
         "movq %%rsi, %2;"
@@ -15,7 +15,7 @@ void syscall_handler() {
         :"=r"(num), "=r"(arg1), "=r"(arg2), "=r"(arg3), "=r"(arg4), "=r"(arg5), "=r"(arg6)
     );
 
-    asm volatile (
+    __asm__ volatile (
         "pushq %rcx;"
         "pushq %r11;"
     );
@@ -29,13 +29,13 @@ void syscall_handler() {
             break;
         }
         case 12: {
-            prints("\r\n\r\n yay \r\n\r\n");
+            osfrt_prints("\r\n\r\n yay \r\n\r\n");
             while(1);
             break;
         }
     }
 
-    asm volatile (
+    __asm__ volatile (
         "popq %r11;"
         "popq %rcx;"
         "sysretq;"

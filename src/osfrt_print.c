@@ -1,11 +1,11 @@
-#include "header/print.h"
+#include "header/osfrt_print.h"
 
 static GRAPHICS graphics;
 static uint32_t color = 0x00aaaaaa;
 static uint32_t x = 0;
 static uint32_t y = 0;
 
-void printc(const char chr) {
+void osfrt_printc(const char chr) {
     switch (chr) {
         case '\n': y++; goto END;
         case '\r': x = 0; goto END;
@@ -29,24 +29,27 @@ void printc(const char chr) {
     }
     END:
 }
-void prints(const char* str) {
-    for (size_t c = 0; str[c] != 0; c++) printc(str[c]);
+void osfrt_prints(const char* str) {
+    for (size_t c = 0; str[c] != 0; c++) osfrt_printc(str[c]);
 }
-void printf(const char* str, ...) {
-    va_list vars;
-    va_start(vars, str);
-
+void osfrt_printf(const char* str, ...) {
+    va_list args;
+    va_start(args, str);
+    vosfrt_printf(str, args);
+    va_end(args);
+}
+void vosfrt_printf(const char* str, va_list args) {
     for (size_t c = 0; str[c] != 0; c++) {
         switch (str[c]) {
             case '%': {
                 c++;
                 switch (str[c]) {
                     case 'd': {
-                        prints(itoa(va_arg(vars, uint64_t)));
+                        osfrt_prints(itoa(va_arg(args, uint64_t)));
                         continue;
                     }
                     case 's': {
-                        prints(va_arg(vars, uint8_t*));
+                        osfrt_prints(va_arg(args, uint8_t*));
                         continue;
                     }
                     default: {
@@ -57,10 +60,8 @@ void printf(const char* str, ...) {
                 break;
             }
         }
-        printc(str[c]);
+        osfrt_printc(str[c]);
     }
-
-    va_end(vars);
 }
 void set_color(uint32_t _color) {
     color = _color;

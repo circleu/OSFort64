@@ -2,7 +2,7 @@
 #define __KERNEL_H
 
 #include <stdint.h>
-#include "print.h"
+#include "osfrt_print.h"
 #include "mem.h"
 #include "bitmap.h"
 #include "pageframealloc.h"
@@ -13,7 +13,7 @@
 #include "gdt.h"
 #include "int.h"
 #include "bootinfo.h"
-#include "acpi.h"
+#include "osfrt_acpi.h"
 #include "proc.h"
 #include "syscall.h"
 

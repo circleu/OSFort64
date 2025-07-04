@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 #include "pageframealloc.h"
-#include "print.h"
+#include "osfrt_print.h"
 #include "io.h"
 
 struct interrupt_frame;

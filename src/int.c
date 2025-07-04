@@ -90,10 +90,10 @@ void set_idt() {
     *(GATE_DESCRIPTOR*)(idtr.offs + 0x08 * sizeof(GATE_DESCRIPTOR)) = idt.df;
     *(GATE_DESCRIPTOR*)(idtr.offs + 0x0d * sizeof(GATE_DESCRIPTOR)) = idt.gp;
 
-    asm volatile ("lidt (%0);"::"r"(&idtr));
+    __asm__ volatile ("lidt (%0);"::"r"(&idtr));
 }
 void remap_pic() {
-    asm volatile ("cli");
+    __asm__ volatile ("cli");
 
     outb(0x10 | 0x01, 0x20);
     io_wait();
@@ -117,7 +117,7 @@ void remap_pic() {
     outb(0x00, 0x28);
     io_wait();
 
-    asm volatile ("sti");
+    __asm__ volatile ("sti");
 }
 static __attribute__((interrupt)) void timer(struct interrupt_frame*) {
     outb(0x20, 0x20);
@@ -125,7 +125,7 @@ static __attribute__((interrupt)) void timer(struct interrupt_frame*) {
 }
 static __attribute__((interrupt)) void keyboard(struct interrupt_frame*) {
     uint8_t key = inb(0x60);
-    prints("pressed\r\n");
+    osfrt_prints("pressed\r\n");
     
     outb(0x20, 0x20);
     return;
@@ -154,10 +154,10 @@ static void panic(uint64_t exception) {
     set_pos(0, 0);
     set_color(0x00ffffff);
     
-    if (exception == (uint64_t)pf) prints("Page Fault.\r\n\r\n");
-    else if (exception == (uint64_t)df) prints("Double Fault.\r\n\r\n");
-    else if (exception == (uint64_t)gp) prints("General Protection Fault.\r\n\r\n");
-    else prints("Unexpected Error.\r\n\r\n");
+    if (exception == (uint64_t)pf) osfrt_prints("Page Fault.\r\n\r\n");
+    else if (exception == (uint64_t)df) osfrt_prints("Double Fault.\r\n\r\n");
+    else if (exception == (uint64_t)gp) osfrt_prints("General Protection Fault.\r\n\r\n");
+    else osfrt_prints("Unexpected Error.\r\n\r\n");
 
     while (1);
 }
